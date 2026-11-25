@@ -61,7 +61,7 @@ def verify(path, data):
         raise ValueError(f"written file is {len(written)} bytes, expected {EXPECTED_BYTES}")
     if hashlib.sha256(written).hexdigest() != EXPECTED_SHA256:
         raise ValueError("written file hash does not match the pinned SHA-256")
-    return written
+    return True
 
 
 def main():
@@ -71,7 +71,9 @@ def main():
         os.makedirs(parent, exist_ok=True)
     with open(OUTPUT_PATH, "wb") as handle:
         handle.write(data)
-    verify(OUTPUT_PATH, data)
+    verified = verify(OUTPUT_PATH, data)
+    if not verified:
+        return 1
     sys.stdout.write(ENTRY_TEXT + "\n")
     sys.stdout.write(f"wrote {OUTPUT_PATH}: {len(data)} bytes, sha256 {EXPECTED_SHA256}\n")
     return 0
